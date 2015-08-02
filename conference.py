@@ -610,6 +610,12 @@ class ConferenceApi(remote.Service):
                 speaker = upcoming_session.speaker
                 sessions = Session.query(Session.speaker == speaker)
                 sessionNames = [session.name for session in sessions]
+                # Add the speaker to memcache
+                cache_data = {}
+                cache_data['speaker'] = data['speaker']
+                cache_data['sessionNames'] = [session.name for session in sessions]
+                if not memcache.set('featured_speaker', cache_data):
+                    logging.error('Memcache set failed.')
 
         # populate speaker form
         sf = SpeakerForm()
